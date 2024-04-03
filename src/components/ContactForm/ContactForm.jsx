@@ -3,13 +3,13 @@ import { useId } from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { useDispatch, useSelector } from "react-redux";
-import { selectContacts } from "../../redux/contactsSlice";
+import { selectContacts } from "../../redux/contacts/selectors";
 import { Toaster } from "react-hot-toast";
 import ErrorToast from "../Toast/ErrorToast";
 import SuccessToast from "../Toast/SuccessToast";
-import { addContact } from "../../redux/contactsOps";
+import { addContact } from "../../redux/contacts/operations";
 
-const phoneRegExp = /^(\d{3}-\d{3}-\d{4})$/;
+const phoneRegExp = /^(\d{3}-\d{2}-\d{2})$/;
 const contactSchema = Yup.object().shape({
   name: Yup.string()
     .min(3, "Too short!")
@@ -34,11 +34,12 @@ export default function ContactForm() {
       )
     ) {
       action.resetForm();
-      return ErrorToast("Contacts alredy in list");
+      return ErrorToast("Error! Try again");
     }
-    dispatch(addContact(values));
+    dispatch(addContact(values))
+      .unwrap()
+      .then(() => SuccessToast("Contact added successfully!"));
     action.resetForm();
-    SuccessToast("Contact added successfully!");
   };
 
   return (
@@ -73,7 +74,7 @@ export default function ContactForm() {
             type="tel"
             name="number"
             id={elementId + "-number"}
-            placeholder="xxx-xxx-xxxx"
+            placeholder="xxx-xx-xx"
           />
           <ErrorMessage
             className={css.error}
